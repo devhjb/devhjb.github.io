@@ -6,6 +6,7 @@
     <meta name="description" content="Jabbey 的个人技术博客，记录 SaaS ERP、库存系统、生产系统和 B 端业务建模实践。">
     <title>Jabbey | SaaS ERP 后端架构笔记</title>
     <link rel="stylesheet" href="./styles.css">
+    <script src="./scripts/main.js" defer></script>
   </head>
   <body>
     <header class="site-header">
@@ -50,66 +51,8 @@
           <p class="section-kicker">Writing</p>
           <h2 id="articles-title">文章</h2>
         </div>
-        <div class="article-list">
-          <article class="article-card featured">
-            <div class="article-meta">
-              <span>领域建模</span>
-              <span>已发布</span>
-            </div>
-            <h3>
-              <a href="https://juejin.cn/post/7675538685450944522" target="_blank" rel="noreferrer">
-                轻制造 SaaS 的生产闭环建模：BOM、工单、领料、报工、质检与入库
-              </a>
-            </h3>
-            <p>
-              从轻制造 SaaS 的真实业务约束出发，拆解 BOM、生产计划、工单、领退料、
-              报工、质检与入库的领域建模思路。
-            </p>
-            <div class="article-footer">
-              <span>MRP Lite 系列 01</span>
-              <span class="article-links">
-                <a class="article-link" href="https://juejin.cn/post/7675538685450944522" target="_blank" rel="noreferrer">
-                  掘金
-                </a>
-                <a class="article-link" href="https://blog.csdn.net/qq_45481524/article/details/163893715?spm=1001.2014.3001.5501" target="_blank" rel="noreferrer">
-                  CSDN
-                </a>
-              </span>
-            </div>
-          </article>
-
-          <article class="article-card">
-            <div class="article-meta">
-              <span>工程架构</span>
-              <span>草稿</span>
-            </div>
-            <h3>库存驱动生产系统里的事务、幂等、预占与在制台账设计</h3>
-            <p>
-              讨论库存移动编排、库存预占、在制台账、事务边界、幂等、
-              UNKNOWN 状态和数量原子累加。
-            </p>
-            <div class="article-footer">
-              <span>MRP Lite 系列 02</span>
-              <span class="pending-link">准备发布</span>
-            </div>
-          </article>
-
-          <article class="article-card">
-            <div class="article-meta">
-              <span>业务洞察</span>
-              <span>草稿</span>
-            </div>
-            <h3>为什么中小工厂不一定需要 MES，而更需要 MRP Lite？</h3>
-            <p>
-              从客户画像、使用门槛和 MVP 边界出发，解释为什么第一版生产系统
-              应先做库存驱动的生产闭环。
-            </p>
-            <div class="article-footer">
-              <span>MRP Lite 系列 03</span>
-              <span class="pending-link">准备发布</span>
-            </div>
-          </article>
-        </div>
+        <div class="article-list" id="article-list" aria-live="polite"></div>
+        <p class="article-load-state" id="article-load-state">文章加载中...</p>
       </section>
 
       <section id="focus" class="section focus-section" aria-labelledby="focus-title">

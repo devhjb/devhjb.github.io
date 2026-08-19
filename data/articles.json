@@ -1,0 +1,38 @@
+[
+  {
+    "title": "轻制造 SaaS 的生产闭环建模：BOM、工单、领料、报工、质检与入库",
+    "series": "MRP Lite 系列 01",
+    "category": "领域建模",
+    "status": "已发布",
+    "featured": true,
+    "summary": "从轻制造 SaaS 的真实业务约束出发，拆解 BOM、生产计划、工单、领退料、报工、质检与入库的领域建模思路。",
+    "links": [
+      {
+        "label": "掘金",
+        "url": "https://juejin.cn/post/7675538685450944522"
+      },
+      {
+        "label": "CSDN",
+        "url": "https://blog.csdn.net/qq_45481524/article/details/163893715?spm=1001.2014.3001.5501"
+      }
+    ]
+  },
+  {
+    "title": "库存驱动生产系统里的事务、幂等、预占与在制台账设计",
+    "series": "MRP Lite 系列 02",
+    "category": "工程架构",
+    "status": "草稿",
+    "featured": false,
+    "summary": "讨论库存移动编排、库存预占、在制台账、事务边界、幂等、UNKNOWN 状态和数量原子累加。",
+    "links": []
+  },
+  {
+    "title": "为什么中小工厂不一定需要 MES，而更需要 MRP Lite？",
+    "series": "MRP Lite 系列 03",
+    "category": "业务洞察",
+    "status": "草稿",
+    "featured": false,
+    "summary": "从客户画像、使用门槛和 MVP 边界出发，解释为什么第一版生产系统应先做库存驱动的生产闭环。",
+    "links": []
+  }
+]
