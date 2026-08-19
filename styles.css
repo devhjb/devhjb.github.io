@@ -285,8 +285,20 @@ main {
   color: var(--accent-strong);
 }
 
+.article-links {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .article-link {
   font-weight: 850;
+}
+
+.article-link + .article-link::before {
+  content: "/";
+  margin-right: 10px;
+  color: var(--muted);
 }
 
 .article-footer {
