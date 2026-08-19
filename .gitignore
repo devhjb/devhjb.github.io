@@ -1,0 +1,17 @@
+.DS_Store
+.obsidian/
+.trash/
+
+# This repository is public. Keep private vault content out of it.
+private/
+_private/
+drafts-private/
+_drafts-private/
+local/
+_local/
+*.local.md
+*.private.md
+*.secret.md
+
+# Temporary export workspace
+.tmp-export/
