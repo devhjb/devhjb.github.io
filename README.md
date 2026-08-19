@@ -1,2 +1,12 @@
-# devhjb.github.io
+Jabbey
+Java 后端开发，关注 SaaS ERP、库存系统、生产系统和 B 端业务架构。
 
+文章
+- 轻制造 SaaS 的生产闭环建模：BOM、工单、领料、报工、质检与入库
+- 库存驱动生产系统里的事务、幂等、预占与在制台账设计
+- 为什么中小工厂不一定需要 MES，而更需要 MRP Lite？
+
+链接
+- 掘金主页
+- GitHub
+- CSDN
