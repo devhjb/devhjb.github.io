@@ -36,12 +36,21 @@
     ]
   },
   {
-    "title": "为什么中小工厂不一定需要 MES，而更需要 MRP Lite？",
+    "title": "为什么中小工厂第一版生产系统，不一定要从 MES 做起？",
     "series": "MRP Lite 系列 03",
     "category": "业务洞察",
-    "status": "草稿",
+    "status": "已发布",
     "featured": false,
     "summary": "从客户画像、使用门槛和 MVP 边界出发，解释为什么第一版生产系统应先做库存驱动的生产闭环。",
-    "links": []
+    "links": [
+      {
+        "label": "掘金",
+        "url": "https://juejin.cn/post/7676262434967961650"
+      },
+      {
+        "label": "CSDN",
+        "url": "https://blog.csdn.net/qq_45481524/article/details/163914543?spm=1001.2014.3001.5501"
+      }
+    ]
   }
 ]
