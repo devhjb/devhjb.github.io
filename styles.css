@@ -13,7 +13,7 @@
   --amber-soft: #fbedd8;
   --green-soft: #e8f3ee;
   --code-bg: #101817;
-  --shadow: 0 18px 46px rgba(30, 39, 35, 0.12);
+  --shadow: 0 14px 34px rgba(30, 39, 35, 0.075);
 }
 
 * { box-sizing: border-box; }
@@ -24,10 +24,10 @@ body {
   margin: 0;
   min-width: 320px;
   background:
-    linear-gradient(90deg, rgba(18, 32, 29, 0.024) 1px, transparent 1px),
-    linear-gradient(180deg, rgba(18, 32, 29, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(18, 32, 29, 0.015) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(18, 32, 29, 0.012) 1px, transparent 1px),
     var(--bg);
-  background-size: 56px 56px;
+  background-size: 64px 64px;
   color: var(--text);
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
   line-height: 1.72;
@@ -91,10 +91,10 @@ a { color: inherit; text-decoration: none; }
 
 .identity-hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
-  gap: 56px;
+  grid-template-columns: minmax(0, 1.16fr) minmax(320px, 0.84fr);
+  gap: 64px;
   align-items: center;
-  padding: 74px 0 50px;
+  padding: 82px 0 54px;
   border-bottom: 1px solid var(--line);
 }
 
@@ -115,7 +115,7 @@ a { color: inherit; text-decoration: none; }
   max-width: 720px;
   margin: 0;
   color: var(--ink);
-  font-size: clamp(40px, 4.4vw, 56px);
+  font-size: clamp(42px, 4.5vw, 58px);
   line-height: 1.12;
   letter-spacing: 0;
 }
@@ -148,12 +148,12 @@ a { color: inherit; text-decoration: none; }
 
 .index-panel {
   align-self: center;
-  padding: 24px;
-  border: 1px solid var(--line-strong);
-  border-top: 4px solid var(--accent);
+  padding: 24px 26px;
+  border: 1px solid rgba(207, 197, 177, 0.82);
+  border-top: 3px solid var(--accent);
   border-radius: 8px;
-  background: rgba(255, 254, 250, 0.92);
-  box-shadow: 0 16px 42px rgba(31, 39, 35, 0.09);
+  background: rgba(255, 254, 250, 0.74);
+  box-shadow: var(--shadow);
 }
 .index-panel-head {
   justify-content: space-between;
@@ -221,9 +221,9 @@ a { color: inherit; text-decoration: none; }
 .about-grid > div,
 .link-list a,
 .post-card {
-  border: 1px solid var(--line);
+  border: 1px solid rgba(227, 222, 210, 0.92);
   border-radius: 8px;
-  background: rgba(255, 253, 248, 0.9);
+  background: rgba(255, 254, 250, 0.78);
 }
 .coordinate-grid article,
 .about-grid > div,
@@ -233,6 +233,52 @@ a { color: inherit; text-decoration: none; }
 .about-grid h3 { margin: 0 0 10px; color: var(--ink); font-size: 18px; }
 .coordinate-grid p,
 .about-grid p { margin: 0; color: var(--muted); font-size: 14px; }
+
+.profile-summary {
+  display: grid;
+  gap: 22px;
+  margin-bottom: 22px;
+  padding: 24px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.profile-line {
+  max-width: 900px;
+  margin: 0;
+  color: #34433e;
+  font-size: 17px;
+}
+.profile-line span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--accent-strong);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.resume-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin: 0;
+}
+.resume-strip div {
+  min-width: 0;
+}
+.resume-strip dt {
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+.resume-strip dd {
+  margin: 0;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 760;
+  line-height: 1.55;
+}
 
 .post-list { display: grid; gap: 14px; }
 .post-card {
@@ -333,10 +379,10 @@ a { color: inherit; text-decoration: none; }
    back/forward cache cannot render the old profile image at its natural size. */
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.08fr) minmax(280px, 0.82fr);
-  gap: 48px;
+  grid-template-columns: minmax(0, 1.16fr) minmax(280px, 0.84fr);
+  gap: 56px;
   align-items: center;
-  padding: 74px 0 50px;
+  padding: 82px 0 54px;
   border-bottom: 1px solid var(--line);
 }
 
@@ -348,7 +394,7 @@ a { color: inherit; text-decoration: none; }
   max-width: 720px;
   margin: 0;
   color: var(--ink);
-  font-size: clamp(40px, 4.4vw, 56px);
+  font-size: clamp(42px, 4.5vw, 58px);
   line-height: 1.12;
   letter-spacing: 0;
 }
@@ -427,6 +473,7 @@ a { color: inherit; text-decoration: none; }
   .index-panel { width: 100%; }
   .coordinate-grid,
   .about-grid,
+  .resume-strip,
   .link-list,
   .focus-grid,
   .article-list { grid-template-columns: 1fr; }
