@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="一次由数据库长事务告警引出的 MyBatis-Plus saveBatch 排查复盘，拆解框架层 batch、JDBC batch 和数据库侧 multi-values INSERT 的差异。">
+    <title>别被 saveBatch 骗了：一次 MyBatis-Plus 批量插入性能排查 | Jabbey</title>
+    <link rel="stylesheet" href="../styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <nav class="nav" aria-label="主导航">
+        <a class="brand" href="../index.html" aria-label="返回 Jabbey 首页">
+          <img class="brand-avatar" src="../assets/avatar.png" alt="Jabbey avatar">
+          <span>Jabbey</span>
+        </a>
+        <div class="nav-links">
+          <a href="../index.html#articles">文章</a>
+          <a href="../index.html#focus">关注方向</a>
+          <a href="../index.html#links">链接</a>
+        </div>
+      </nav>
+    </header>
+
+    <main class="article-page">
+      <article class="post-shell">
+        <header class="post-header">
+          <p class="eyebrow">Java / MyBatis-Plus / MySQL Performance</p>
+          <h1>别被 saveBatch 骗了：一次 MyBatis-Plus 批量插入性能排查</h1>
+          <p class="post-description">一次由数据库长事务告警引出的批量插入排查复盘。文章拆解框架层 batch、JDBC batch、数据库侧 multi-values INSERT 的差异，并通过 A/B 验证说明 <code>rewriteBatchedStatements=true</code> 的真实收益和风险边界。</p>
+          <div class="post-meta-row" aria-label="文章元信息">
+            <span>2026-08-23</span>
+            <span>Java 性能排查</span>
+            <span>已发布</span>
+          </div>
+          <div class="post-source-links" aria-label="同步发布链接">
+            <a href="https://juejin.cn/post/7676661059809755172" target="_blank" rel="noreferrer">掘金</a>
+            <a href="https://blog.csdn.net/qq_45481524/article/details/163994433?spm=1001.2014.3001.5501" target="_blank" rel="noreferrer">CSDN</a>
+          </div>
+          <img class="post-cover" src="../assets/articles/mybatis-plus-savebatch/savebatch-cover.png" alt="MyBatis-Plus 批量插入性能排查封面">
+        </header>
+        <div class="post-content">
+<h2 id="摘要">摘要</h2>
+<p>这次问题的表象是：一个定时任务写入大量报表明细后，数据库触发了长事务和
+SQL 审计尖峰。</p>
+<p>第一眼看代码，业务已经用了 MyBatis-Plus：</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveBatch</span><span class="op">(</span>records<span class="op">,</span> <span class="dv">200</span><span class="op">);</span></span></code></pre></div>
+<p>这很容易让人产生一个判断：既然已经
+<code>saveBatch</code>，批量插入应该没问题了。</p>
+<p>但后续 SQL 审计和 A/B 验证证明，事情并没有这么简单。同样插入 5000
+条数据，同样使用 <code>saveBatch(list, 200)</code>：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th style="text-align: right;">平均耗时</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>未开启 <code>rewriteBatchedStatements</code></td>
+<td style="text-align: right;">约 44.2 秒</td>
+</tr>
+<tr>
+<td>开启 <code>rewriteBatchedStatements=true</code></td>
+<td style="text-align: right;">约 2.2 秒</td>
+</tr>
+</tbody>
+</table>
+<p>差距大约 20 倍。</p>
+<p>最终根因不是业务代码没有调用批量 API，而是 MySQL Connector/J
+没有开启批量重写，导致 JDBC batch 没有变成数据库侧真正高效的
+multi-values INSERT。</p>
+<p>这次排查最重要的收获是：</p>
+<pre class="text"><code>框架层 batch、JDBC 层 batch、数据库侧 multi-values batch，不是同一件事。</code></pre>
+<h2 id="问题现象代码看起来批量了数据库侧却仍然很忙">1.
+问题现象：代码看起来批量了，数据库侧却仍然很忙</h2>
+<p>某天早上的报表定时任务执行后，数据库监控出现长事务告警。继续看 SQL
+审计，可以看到同一个时间窗口内 INSERT
+数量明显抬高，主要集中在两类报表明细表。</p>
+<p>为了避免暴露内部信息，可以把现象抽象成这样：</p>
+<pre class="text"><code>06:15 附近，SQL 审计出现明显尖峰
+一分钟内审计记录数超过 3 万条
+主要 INSERT 集中在报表明细表 A 和报表明细表 B</code></pre>
+<p>这个现象说明，它不是某一条复杂 SQL
+慢，而是短时间内大量写入把事务时间和数据库压力一起推高了。</p>
+<p>于是第一步自然是回到代码里看：是不是有人在循环里一条一条
+<code>save()</code>？</p>
+<p>结果不是。</p>
+<p>业务代码里已经用了类似下面的写法：</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>reportService<span class="op">.</span><span class="fu">saveBatch</span><span class="op">(</span>reportList<span class="op">,</span> <span class="dv">200</span><span class="op">);</span></span></code></pre></div>
+<p>也就是说，从业务代码视角看，开发并没有写最糟糕的循环单条插入。</p>
+<p>矛盾就出现了：</p>
+<pre class="text"><code>代码：saveBatch(list, 200)
+审计：仍然像大量单条 INSERT 一样形成尖峰</code></pre>
+<p>如果排查停在代码层，很容易得出错误结论：既然已经
+<code>saveBatch</code> 了，那批量插入就不是问题。</p>
+<p>但 SQL 审计不会关心我们调用了什么
+API，它只反映数据库最终看到了什么。</p>
+<h2 id="关键认知三层-batch-不是一回事">2. 关键认知：三层 batch
+不是一回事</h2>
+<p>这次排查真正有价值的地方，不是发现了某个参数，而是把“批量插入”拆开看清楚了。</p>
+<figure>
+<img
+src="../assets/articles/mybatis-plus-savebatch/savebatch-layers.png"
+alt="三层 batch 示意图" />
+<figcaption aria-hidden="true">三层 batch 示意图</figcaption>
+</figure>
+<h3 id="框架层-batch">2.1 框架层 batch</h3>
+<p>业务代码调用：</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode java"><code class="sourceCode java"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveBatch</span><span class="op">(</span>list<span class="op">,</span> <span class="dv">200</span><span class="op">);</span></span></code></pre></div>
+<p>这是 MyBatis-Plus
+提供的批量保存入口。它的价值很明确：业务层不用给每张表手写循环插入，也不用在每个
+Service 里维护一套重复 mapper。</p>
+<p>但它只能说明：我们进入了框架提供的批量 API。</p>
+<p>它不能直接证明：数据库服务端收到的就是一条 multi-values INSERT。</p>
+<h3 id="jdbc-层-batch">2.2 JDBC 层 batch</h3>
+<p>MyBatis-Plus 底层会通过 MyBatis/JDBC 执行 batch，大致可以理解为：</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode java"><code class="sourceCode java"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>preparedStatement<span class="op">.</span><span class="fu">addBatch</span><span class="op">();</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>preparedStatement<span class="op">.</span><span class="fu">addBatch</span><span class="op">();</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>preparedStatement<span class="op">.</span><span class="fu">addBatch</span><span class="op">();</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>preparedStatement<span class="op">.</span><span class="fu">executeBatch</span><span class="op">();</span></span></code></pre></div>
+<p>这说明应用和 JDBC 驱动之间确实进入了 batch 语义。</p>
+<p>但 JDBC batch 仍然只是客户端和驱动之间的执行方式。驱动最终怎么把这些
+batch 发给 MySQL，还取决于驱动实现和连接参数。</p>
+<h3 id="数据库侧-multi-values-batch">2.3 数据库侧 multi-values
+batch</h3>
+<p>我们真正希望数据库执行的是这种形态：</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> demo_table (<span class="kw">id</span>, name, amount)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">VALUES</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  (?, ?, ?),</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  (?, ?, ?),</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  (?, ?, ?);</span></code></pre></div>
+<p>而不是这种形态：</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> demo_table (<span class="kw">id</span>, name, amount) <span class="kw">VALUES</span> (?, ?, ?);</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> demo_table (<span class="kw">id</span>, name, amount) <span class="kw">VALUES</span> (?, ?, ?);</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> demo_table (<span class="kw">id</span>, name, amount) <span class="kw">VALUES</span> (?, ?, ?);</span></code></pre></div>
+<p>前者减少了 SQL 解析、网络往返和服务端处理成本，后者即使来自
+<code>executeBatch()</code>，在数据库侧仍然可能更接近“大量单条写入”。</p>
+<p>所以这次的核心判断是：</p>
+<pre class="text"><code>saveBatch 说明框架层用了 batch；
+executeBatch 说明 JDBC 层用了 batch；
+只有最终 SQL 形态才能说明数据库侧是否真的吃到了批量收益。</code></pre>
+<h2 id="根因少了-rewritebatchedstatementstrue">3. 根因：少了
+rewriteBatchedStatements=true</h2>
+<p>排查 JDBC URL
+后，发现连接参数里有常见配置，例如字符集、时区等，但没有：</p>
+<pre class="text"><code>rewriteBatchedStatements=true</code></pre>
+<p>这个参数是 MySQL Connector/J
+的性能扩展配置。按官方文档说明，它会在调用 <code>executeBatch()</code>
+时，对 INSERT / REPLACE 这类 PreparedStatement
+做批量重写，把它们转换成更高效的 multi-values 形式。该参数默认值是
+<code>false</code>。</p>
+<p>也就是说，如果没有显式开启它，不能简单假设 JDBC batch
+一定会变成数据库侧 multi-values INSERT。</p>
+<p>还有一个容易混淆的参数是：</p>
+<pre class="text"><code>allowMultiQueries=true</code></pre>
+<p>它允许一条 Statement 中包含多条 SQL，但这不是 JDBC batch rewrite
+的开关。把它打开，不等于打开了
+<code>rewriteBatchedStatements</code>。</p>
+<p>最终根因可以压缩成一句话：</p>
+<pre class="text"><code>MyBatis-Plus 已经做了 JDBC batch，但 MySQL Connector/J 没有开启批量重写，数据库侧没有获得 multi-values INSERT 的性能收益。</code></pre>
+<h2 id="ab-验证只改变一个变量">4. A/B 验证：只改变一个变量</h2>
+<p>为了避免直接拿生产报表表做实验，我构造了一个脱敏测试场景：</p>
+<pre class="text"><code>测试表：batch_insert_test
+数据量：5000 条
+批大小：200
+代码：saveBatch(list, 200)
+变量：JDBC URL 是否增加 rewriteBatchedStatements=true</code></pre>
+<p>关键是只改变一个变量。</p>
+<p>这样结果才能归因到 JDBC
+参数，而不是机器负载、业务逻辑、索引差异或测试数据不同。</p>
+<h3 id="未开启-rewritebatchedstatements">4.1 未开启
+rewriteBatchedStatements</h3>
+<p>三次结果：</p>
+<pre class="text"><code>A：47139 ms
+B：42751 ms
+C：42697 ms</code></pre>
+<p>平均耗时约：</p>
+<pre class="text"><code>44.2 秒</code></pre>
+<h3 id="开启-rewritebatchedstatementstrue">4.2 开启
+rewriteBatchedStatements=true</h3>
+<p>三次结果：</p>
+<pre class="text"><code>A：1945 ms
+B：2738 ms
+C：1807 ms</code></pre>
+<p>平均耗时约：</p>
+<pre class="text"><code>2.2 秒</code></pre>
+<h3 id="结果">4.3 结果</h3>
+<pre class="text"><code>44.2 / 2.2 ≈ 20</code></pre>
+<p>同样的数据量，同样的 <code>saveBatch(list, 200)</code>，只增加一个
+JDBC 参数，性能提升约 20 倍。</p>
+<p>这说明之前的瓶颈不是业务没有批量，而是批量语义没有在数据库侧充分兑现。</p>
+<h2 id="为什么平时体感只是不丝滑不是完全不可用">5.
+为什么平时体感只是“不丝滑”，不是“完全不可用”</h2>
+<p>这个问题有个迷惑性：它不一定每天都炸。</p>
+<p>原因是业务代码已经避免了最差的写法。它不是这样：</p>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode java"><code class="sourceCode java"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span>Record <span class="kw">record</span> <span class="op">:</span> records<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    service<span class="op">.</span><span class="fu">save</span><span class="op">(</span><span class="kw">record</span><span class="op">);</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>它至少已经通过 <code>saveBatch</code> 进入了 JDBC
+batch，所以不会慢到特别离谱。</p>
+<p>但因为驱动没有重写成 multi-values INSERT，它也没有达到理想状态。</p>
+<p>所以平时的体感可能是：</p>
+<pre class="text"><code>后端响应不是特别慢，但导入、初始化、报表生成、明细落库，总感觉不够顺。</code></pre>
+<p>可以粗略理解成：</p>
+<pre class="text"><code>代码层面从 0 分优化到了 60 分；
+驱动参数没开，所以没能到 90 分。</code></pre>
+<p>这类问题通常会在这些场景集中暴露：</p>
+<ul>
+<li>报表生成</li>
+<li>Excel 导入</li>
+<li>初始化数据写入</li>
+<li>订单/采购/库存明细落库</li>
+<li>财务分录、余额、流水批量生成</li>
+<li>定时任务集中写入</li>
+</ul>
+<p>但也要说清楚边界：它不会让所有接口都快 20 倍。</p>
+<p>直接受益的是基于 JDBC batch 的批量 INSERT
+场景。普通查询、单条写入、Redis 调用、远程调用、Java
+计算、慢索引查询，都不属于这次优化的收益范围。</p>
+<h2 id="为什么不直接给每张表写-xml-foreach">6. 为什么不直接给每张表写
+XML foreach</h2>
+<p>看到 multi-values INSERT 后，很多人的第一反应是：那我手写 XML
+<code>foreach</code> 不就行了吗？</p>
+<p>当然可以，但这不是第一选择。</p>
+<p>如果每张表都写一套批量 mapper，会带来几个问题：</p>
+<pre class="text"><code>每张表都要维护一段批量 SQL
+字段变更时 mapper 容易漏改
+通用 CRUD 和定制 mapper 并存，维护成本升高
+项目里已有大量 saveBatch 调用，逐个替换成本很高
+问题本质在驱动层参数，不在每个 Service 的写法</code></pre>
+<p>更合理的顺序是：</p>
+<pre class="text"><code>先打开 MySQL Connector/J 官方提供的 batch rewrite 能力，
+让现有 saveBatch 调用自动获得收益。</code></pre>
+<p>只有少数极端场景再考虑定制：</p>
+<ul>
+<li>超大批量导入，需要 <code>LOAD DATA INFILE</code></li>
+<li>特殊 <code>ON DUPLICATE KEY UPDATE</code> 语义</li>
+<li>单表瓶颈明确，通用方案仍不足</li>
+<li>需要特殊分片、临时表或中间表策略</li>
+</ul>
+<p>绝大多数业务系统里，先把 JDBC 层能力用对，比到处写定制 SQL
+更低成本。</p>
+<h2 id="风险边界这个参数不是不能开但也不是零风险">7.
+风险边界：这个参数不是不能开，但也不是零风险</h2>
+<p><code>rewriteBatchedStatements=true</code>
+是官方能力，但上线前仍然要评估边界。</p>
+<h3 id="单批-sql-包会变大">7.1 单批 SQL 包会变大</h3>
+<p>开启后，多条 INSERT 会被重写成一条 multi-values INSERT。单条 SQL
+包会变大。</p>
+<p>如果 batchSize 设置得过大，可能碰到：</p>
+<pre class="text"><code>max_allowed_packet
+PacketTooBig
+连接异常</code></pre>
+<p>所以建议不要在同一次上线里同时做两件事：</p>
+<pre class="text"><code>开启 rewriteBatchedStatements=true
+同时把 batchSize 从 200 放大到 2000</code></pre>
+<p>先保持原有批大小，只改一个变量。</p>
+<h3 id="自增主键回填要单独验证">7.2 自增主键回填要单独验证</h3>
+<p>如果业务强依赖数据库自增 ID 的逐条回填，需要单独验证。</p>
+<p>很多企业项目会使用雪花 ID、业务 ID
+或应用侧生成主键，这类场景风险相对低一些。但不能因为别的项目没问题，就默认自己也没问题。</p>
+<h3 id="on-duplicate-key-update-的-update-count-语义">7.3 ON DUPLICATE
+KEY UPDATE 的 update count 语义</h3>
+<p>MySQL Connector/J
+官方文档也提醒，<code>rewriteBatchedStatements=true</code> 和
+<code>INSERT ... ON DUPLICATE KEY UPDATE</code> 一起使用时，批量重写后的
+affected rows 很难精确映射回每条原始语句。</p>
+<p>如果业务依赖每一条 batch item
+的更新行数，就不能只看性能，要补充语义验证。</p>
+<h3 id="普通-statement-的-sql-注入风险">7.4 普通 Statement 的 SQL
+注入风险</h3>
+<p>官方文档还提示，普通 Statement 在输入没有清洗时，批量重写可能扩大 SQL
+注入风险。</p>
+<p>但典型 MyBatis-Plus <code>saveBatch</code> 使用的是 PreparedStatement
+参数绑定，不是字符串拼接
+SQL。真正需要警惕的，反而是系统里是否存在手写拼接
+SQL、是否全局开启了不必要的多语句执行能力。</p>
+<h2 id="推荐上线清单">8. 推荐上线清单</h2>
+<p>我的建议是按小步验证，不要把多个优化叠在一起。</p>
+<p>短期方案：</p>
+<pre class="text"><code>JDBC URL 增加 rewriteBatchedStatements=true
+保持现有 saveBatch(list, 200)
+暂不放大 batchSize
+暂不大面积改 XML mapper</code></pre>
+<p>验证顺序：</p>
+<ol type="1">
+<li>开发环境完成 A/B 验证。</li>
+<li>测试环境回归报表、导入、初始化、单据明细等批量 INSERT 场景。</li>
+<li>检查是否有自增主键回填、<code>ON DUPLICATE KEY UPDATE</code>、流式字段写入等特殊场景。</li>
+<li>生产低峰发布。</li>
+<li>观察慢 SQL、SQL 审计 INSERT 数量、数据库
+CPU、主从延迟、<code>PacketTooBig</code>、连接异常。</li>
+</ol>
+<p>验证口径不要只看接口耗时。更重要的是看数据库侧事实：</p>
+<pre class="text"><code>SQL 审计记录数是否下降？
+批量 INSERT 的最终 SQL 形态是否改变？
+数据库负载是否下降？
+定时任务事务时间是否缩短？</code></pre>
+<h2 id="这次排查给我的几个提醒">9. 这次排查给我的几个提醒</h2>
+<h3 id="不要被-api-名字骗了">9.1 不要被 API 名字骗了</h3>
+<p><code>saveBatch</code> 这个名字很容易让人放松警惕。</p>
+<p>但排查性能问题时，不能停在“我调用了批量 API”。还要继续问：</p>
+<pre class="text"><code>JDBC 驱动怎么执行？
+网络往返有没有减少？
+数据库审计里是什么形态？
+最终 SQL 是单条洪峰，还是 multi-values？</code></pre>
+<h3 id="性能排查要看最终事实">9.2 性能排查要看最终事实</h3>
+<p>这次真正推动问题往下走的是 SQL 审计。</p>
+<p>如果只看代码，会觉得已经批量了；如果只看接口耗时，会觉得只是定时任务偏慢；但
+SQL 审计能直接告诉我们数据库最终承受了什么。</p>
+<h3 id="ab-实验要控制变量">9.3 A/B 实验要控制变量</h3>
+<p>这次结果有说服力，是因为固定了这些条件：</p>
+<pre class="text"><code>同一张表
+同一数据量
+同一 batchSize
+同一 saveBatch 代码
+只改变 rewriteBatchedStatements</code></pre>
+<p>性能优化最怕“顺手又改了几个地方”。一旦变量混在一起，就很难判断到底是谁带来了收益。</p>
+<h3 id="好的优化不一定是多写代码">9.4 好的优化不一定是多写代码</h3>
+<p>一开始很容易走向“写 XML foreach”“每张表加批量 mapper”。</p>
+<p>但这次更好的方案，是打开 JDBC
+驱动已有能力，让系统里现有的批量调用自动收益。</p>
+<p>少写代码、少改业务、收益明确、风险可控，这才是更值得优先考虑的优化。</p>
+<h2 id="可以直接复用的排查模板">10. 可以直接复用的排查模板</h2>
+<p>以后再遇到“代码已经批量了，但数据库还是很忙”的问题，可以按这个顺序查：</p>
+<pre class="text"><code>1. 先看业务代码是不是循环单条写入。
+2. 确认是否调用了框架批量 API，例如 saveBatch。
+3. 看 JDBC URL 是否开启 rewriteBatchedStatements。
+4. 用 SQL 审计或 general log 看最终 SQL 形态。
+5. 做 A/B：同代码、同数据量、同 batchSize，只改 JDBC 参数。
+6. 评估 max_allowed_packet、自增主键、ON DUPLICATE KEY UPDATE、update count 等边界。
+7. 小流量或低峰上线，观察数据库侧指标。</code></pre>
+<p>这套模板不只适用于 MyBatis-Plus。只要是 Java + MySQL + JDBC batch
+的批量写入链路，都值得检查这一层。</p>
+<h2 id="结语">结语</h2>
+<p>这次问题表面上是一次长事务告警，实际上暴露的是一个很常见的抽象泄漏：</p>
+<pre class="text"><code>框架 API 告诉你“我批量了”；
+JDBC 驱动决定“怎么批量”；
+数据库审计告诉你“最终到底批没批量”。</code></pre>
+<p>性能优化不能只相信代码意图，要看最终事实。</p>
+<p><code>saveBatch</code> 没有错，MyBatis-Plus
+也没有错。错的是我们把“调用了批量
+API”误认为“数据库已经按最高效方式执行”。</p>
+<p>下次再看到 <code>saveBatch(list, 200)</code>，可以多问一句：</p>
+<pre class="text"><code>数据库侧看到的，真的是 multi-values INSERT 吗？</code></pre>
+<h2 id="参考资料">参考资料</h2>
+<ul>
+<li>MySQL Connector/J Developer Guide：Performance
+Extensions，<code>rewriteBatchedStatements</code> 配置说明：<a
+href="https://dev.mysql.com/doc/connector-j/en/connector-j-connp-props-performance-extensions.html"
+class="uri">https://dev.mysql.com/doc/connector-j/en/connector-j-connp-props-performance-extensions.html</a></li>
+<li>MySQL Connector/J Developer Guide：Configuration
+Properties，性能扩展属性表：<a
+href="https://dev.mysql.com/doc/connector-j/en/connector-j-reference-configuration-properties.html"
+class="uri">https://dev.mysql.com/doc/connector-j/en/connector-j-reference-configuration-properties.html</a></li>
+<li>MyBatis-Plus 官方文档：持久层接口与 <code>saveBatch</code>：<a
+href="https://baomidou.com/guides/data-interface/"
+class="uri">https://baomidou.com/guides/data-interface/</a></li>
+<li>MyBatis-Plus 官方文档：批量操作：<a
+href="https://baomidou.com/guides/batch-operation/"
+class="uri">https://baomidou.com/guides/batch-operation/</a></li>
+</ul>
+
+        </div>
+      </article>
+    </main>
+
+    <footer class="site-footer">
+      <p>© 2026 Jabbey. Built for technical writing and system design notes.</p>
+    </footer>
+  </body>
+</html>

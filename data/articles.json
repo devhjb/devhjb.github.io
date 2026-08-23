@@ -1,10 +1,32 @@
 [
   {
+    "title": "别被 saveBatch 骗了：一次 MyBatis-Plus 批量插入性能排查",
+    "series": "性能排查 01",
+    "category": "Java 性能",
+    "status": "已发布",
+    "featured": true,
+    "summary": "一次由数据库长事务告警引出的 MyBatis-Plus saveBatch 排查复盘，拆解框架层 batch、JDBC batch 和数据库侧 multi-values INSERT 的差异。",
+    "links": [
+      {
+        "label": "本站",
+        "url": "./articles/2026-08-23-mybatis-plus-savebatch.html"
+      },
+      {
+        "label": "掘金",
+        "url": "https://juejin.cn/post/7676661059809755172"
+      },
+      {
+        "label": "CSDN",
+        "url": "https://blog.csdn.net/qq_45481524/article/details/163994433?spm=1001.2014.3001.5501"
+      }
+    ]
+  },
+  {
     "title": "轻制造 SaaS 的生产闭环建模：BOM、工单、领料、报工、质检与入库",
     "series": "MRP Lite 系列 01",
     "category": "领域建模",
     "status": "已发布",
-    "featured": true,
+    "featured": false,
     "summary": "从轻制造 SaaS 的真实业务约束出发，拆解 BOM、生产计划、工单、领退料、报工、质检与入库的领域建模思路。",
     "links": [
       {

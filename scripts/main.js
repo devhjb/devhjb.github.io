@@ -33,8 +33,7 @@ const buildArticleCard = (article) => {
   if (mainLink?.url) {
     const link = document.createElement('a');
     link.href = mainLink.url;
-    link.target = '_blank';
-    link.rel = 'noreferrer';
+    applyLinkTarget(link, mainLink.url);
     link.textContent = article.title;
     title.appendChild(link);
   } else {
@@ -71,13 +70,19 @@ const buildArticleLinks = (article) => {
     const link = document.createElement('a');
     link.className = 'article-link';
     link.href = item.url;
-    link.target = '_blank';
-    link.rel = 'noreferrer';
+    applyLinkTarget(link, item.url);
     link.textContent = item.label;
     links.appendChild(link);
   });
 
   return links;
+};
+
+const applyLinkTarget = (link, url) => {
+  if (/^https?:\/\//.test(url)) {
+    link.target = '_blank';
+    link.rel = 'noreferrer';
+  }
 };
 
 const buildTextElement = (tagName, text) => {
