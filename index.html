@@ -1,31 +1,79 @@
 ---
 layout: default
 title: "后端架构笔记"
-description: "Jabbey 的个人技术博客，记录 SaaS ERP、业务建模和 Java 后端性能排查实践。"
+description: "Jabbey 的个人技术博客，记录 SaaS ERP、复杂业务建模、后端性能排查和 AI 工程工作流。"
 ---
 
 <main id="top" class="home-page">
-  <section class="intro" aria-labelledby="intro-title">
-    <p class="eyebrow">Java / SaaS ERP / Performance Troubleshooting</p>
-    <h1 id="intro-title">Jabbey 的后端架构笔记</h1>
-    <p class="intro-text">
-      记录从真实业务问题到系统设计、从线上现象到证据链排查的思考。关注 SaaS ERP、库存与生产系统、
-      B 端业务建模、事务一致性、SQL 审计、数据库链路和工程稳健性。
-    </p>
-    <div class="intro-actions" aria-label="快捷入口">
-      <a class="primary-link" href="#writing">阅读文章</a>
-      <a class="secondary-link" href="https://github.com/devhjb" target="_blank" rel="noreferrer">GitHub</a>
+  <section class="identity-hero" aria-labelledby="intro-title">
+    <div class="identity-copy">
+      <p class="eyebrow">Java Backend / SaaS ERP / Evidence-Driven Debugging</p>
+      <h1 id="intro-title">把复杂业务跑成可靠系统。</h1>
+      <p class="intro-text">
+        我关注两类问题：一类是 SaaS ERP 里的业务账怎么建模，另一类是线上系统出问题时，怎样沿着日志、SQL 审计、JVM 与链路证据把事实查清楚。
+        这里记录业务建模、库存生产、财会链路、性能排查，以及 AI 参与工程工作流后的方法变化。
+      </p>
+      <div class="intro-actions" aria-label="快捷入口">
+        <a class="primary-link" href="#writing">阅读最新文章</a>
+        <a class="secondary-link" href="#coordinate">查看写作坐标</a>
+      </div>
+    </div>
+
+    <aside class="signal-panel" aria-label="个人技术信号">
+      <div class="signal-head">
+        <span class="terminal-dot"></span>
+        <span>jabbey.system.profile</span>
+      </div>
+      <dl class="signal-list">
+        <div><dt>主线</dt><dd>复杂业务系统 / 后端稳健性</dd></div>
+        <div><dt>业务域</dt><dd>进销存、餐饮、财会、库存、生产</dd></div>
+        <div><dt>排查法</dt><dd>证据链优先，结论后置</dd></div>
+        <div><dt>工作流</dt><dd>规则、上下文、验证、回退</dd></div>
+      </dl>
+    </aside>
+  </section>
+
+  <section id="coordinate" class="section coordinate-section" aria-labelledby="coordinate-title">
+    <div class="section-heading compact">
+      <p class="section-kicker">Coordinate</p>
+      <h2 id="coordinate-title">写作坐标系</h2>
+    </div>
+    <div class="coordinate-grid">
+      <article>
+        <span class="coordinate-index">01</span>
+        <h3>业务系统建模</h3>
+        <p>把商品、库存、采购、销售、生产、财会这些业务对象拆成边界、状态、不变量和账本。</p>
+      </article>
+      <article>
+        <span class="coordinate-index">02</span>
+        <h3>性能与排障证据链</h3>
+        <p>从告警、日志、SQL 审计、JVM 指标和 A/B 验证里还原事实，不把框架 API 名字当结论。</p>
+      </article>
+      <article>
+        <span class="coordinate-index">03</span>
+        <h3>AI 工程工作流</h3>
+        <p>把 AI Coding 从提示词技巧推进到上下文、规则、评估、工具、记忆和回退组成的工作系统。</p>
+      </article>
     </div>
   </section>
 
   <section id="writing" class="section writing-section" aria-labelledby="writing-title">
-    <div class="section-heading compact">
-      <p class="section-kicker">Writing</p>
-      <h2 id="writing-title">文章</h2>
+    <div class="section-heading split">
+      <div>
+        <p class="section-kicker">Writing</p>
+        <h2 id="writing-title">技术日志</h2>
+      </div>
+      <p>优先记录真实问题、设计取舍和可复用排查模板。</p>
     </div>
     <div class="post-list">
       {% for post in site.posts %}
         <article class="post-card{% if post.featured %} featured{% endif %}">
+          <div class="post-date-block">
+            <time datetime="{{ post.date | date: '%Y-%m-%d' }}">
+              <strong>{{ post.date | date: '%d' }}</strong>
+              <span>{{ post.date | date: '%Y.%m' }}</span>
+            </time>
+          </div>
           <div class="post-card-main">
             <div class="article-meta">
               <span>{{ post.category }}</span>
@@ -34,7 +82,6 @@ description: "Jabbey 的个人技术博客，记录 SaaS ERP、业务建模和 J
             <h3><a href="{{ post.url }}">{{ post.title }}</a></h3>
             <p>{{ post.summary }}</p>
             <div class="article-footer">
-              <time datetime="{{ post.date | date: '%Y-%m-%d' }}">{{ post.date | date: '%Y-%m-%d' }}</time>
               <span class="article-links">
                 <a class="article-link" href="{{ post.url }}">本站</a>
                 {% for item in post.links %}<a class="article-link" href="{{ item.url }}" target="_blank" rel="noreferrer">{{ item.label }}</a>{% endfor %}
@@ -49,20 +96,20 @@ description: "Jabbey 的个人技术博客，记录 SaaS ERP、业务建模和 J
   <section id="about" class="section about-section" aria-labelledby="about-title">
     <div class="section-heading compact">
       <p class="section-kicker">About</p>
-      <h2 id="about-title">关注方向</h2>
+      <h2 id="about-title">公开能力标签</h2>
     </div>
     <div class="about-grid">
       <div>
-        <h3>SaaS ERP 业务建模</h3>
-        <p>围绕商品、库存、采购、销售、生产、财务等边界，沉淀可演进的 B 端业务系统设计方法。</p>
+        <h3>多中心 SaaS ERP</h3>
+        <p>长期处理 merchant、passport、resource、boss 等中心协作下的业务边界、权限、i18n 和跨域编排。</p>
       </div>
       <div>
-        <h3>库存与生产系统</h3>
-        <p>关注库存流水、预占、在制台账、BOM、工单和生产闭环中的账务一致性。</p>
+        <h3>库存、生产与财会链路</h3>
+        <p>关注库存流水、预占、Open Item、会计过账、业务操作日志和轻制造生产闭环。</p>
       </div>
       <div>
-        <h3>性能排查与工程稳健性</h3>
-        <p>重视 SQL 审计、日志证据链、事务边界、幂等、异常恢复和可复用排查模板。</p>
+        <h3>工程纪律与 AI 协作</h3>
+        <p>用编码规范、上下文管理、自动化验证和排查模板，让复杂系统在多人协作和 AI 参与下仍然可控。</p>
       </div>
     </div>
   </section>
@@ -70,7 +117,7 @@ description: "Jabbey 的个人技术博客，记录 SaaS ERP、业务建模和 J
   <section id="links" class="section links-section" aria-labelledby="links-title">
     <div class="section-heading compact">
       <p class="section-kicker">Links</p>
-      <h2 id="links-title">链接</h2>
+      <h2 id="links-title">外部同步</h2>
     </div>
     <div class="link-list">
       <a href="https://github.com/devhjb" target="_blank" rel="noreferrer">
@@ -79,11 +126,11 @@ description: "Jabbey 的个人技术博客，记录 SaaS ERP、业务建模和 J
       </a>
       <a href="https://juejin.cn/post/7676661059809755172" target="_blank" rel="noreferrer">
         <span>掘金</span>
-        <strong>最新文章同步</strong>
+        <strong>MyBatis-Plus 批量插入排查</strong>
       </a>
       <a href="https://blog.csdn.net/qq_45481524/article/details/163994433?spm=1001.2014.3001.5501" target="_blank" rel="noreferrer">
         <span>CSDN</span>
-        <strong>最新文章同步</strong>
+        <strong>MyBatis-Plus 批量插入排查</strong>
       </a>
     </div>
   </section>
