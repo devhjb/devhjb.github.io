@@ -7,11 +7,11 @@ description: "Jabbey 的个人技术博客，记录 SaaS ERP、复杂业务建�
 <main id="top" class="home-page">
   <section class="identity-hero" aria-labelledby="intro-title">
     <div class="identity-copy">
-      <p class="eyebrow">Java Backend / SaaS ERP / Evidence-Driven Debugging</p>
-      <h1 id="intro-title">把复杂业务跑成可靠系统。</h1>
+      <p class="eyebrow">Java Backend / SaaS ERP / Debugging Notes</p>
+      <h1 id="intro-title">复杂业务系统与后端排查笔记</h1>
       <p class="intro-text">
-        我关注两类问题：一类是 SaaS ERP 里的业务账怎么建模，另一类是线上系统出问题时，怎样沿着日志、SQL 审计、JVM 与链路证据把事实查清楚。
-        这里记录业务建模、库存生产、财会链路、性能排查，以及 AI 参与工程工作流后的方法变化。
+        记录 SaaS ERP 里的业务建模、库存生产、财会链路和线上问题排查。
+        写作重点不放在框架名词上，而是放在状态、账本、日志、SQL、JVM 与验证过程组成的证据链上。
       </p>
       <div class="intro-actions" aria-label="快捷入口">
         <a class="primary-link" href="#writing">阅读最新文章</a>
@@ -19,17 +19,35 @@ description: "Jabbey 的个人技术博客，记录 SaaS ERP、复杂业务建�
       </div>
     </div>
 
-    <aside class="signal-panel" aria-label="个人技术信号">
-      <div class="signal-head">
-        <span class="terminal-dot"></span>
-        <span>jabbey.system.profile</span>
+    <aside class="index-panel" aria-label="博客索引">
+      <div class="index-panel-head">
+        <span>Jabbey</span>
+        <strong>Backend Notes</strong>
       </div>
-      <dl class="signal-list">
-        <div><dt>主线</dt><dd>复杂业务系统 / 后端稳健性</dd></div>
-        <div><dt>业务域</dt><dd>进销存、餐饮、财会、库存、生产</dd></div>
-        <div><dt>排查法</dt><dd>证据链优先，结论后置</dd></div>
-        <div><dt>工作流</dt><dd>规则、上下文、验证、回退</dd></div>
-      </dl>
+      <ol class="index-routes">
+        <li>
+          <span>01</span>
+          <a href="#coordinate">
+            <strong>业务系统建模</strong>
+            <em>对象、状态、账本、边界</em>
+          </a>
+        </li>
+        <li>
+          <span>02</span>
+          <a href="#writing">
+            <strong>性能与排障</strong>
+            <em>日志、SQL、JVM、链路证据</em>
+          </a>
+        </li>
+        <li>
+          <span>03</span>
+          <a href="#about">
+            <strong>AI 工程工作流</strong>
+            <em>规则、上下文、验证、回退</em>
+          </a>
+        </li>
+      </ol>
+      <p class="index-footnote">公开内容只保留可复用方法和脱敏后的工程经验。</p>
     </aside>
   </section>
 
