@@ -1,108 +1,90 @@
-<!doctype html>
-<html lang="zh-CN">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Jabbey 的个人技术博客，记录 SaaS ERP、库存系统、生产系统、B 端业务建模和 Java 后端性能排查实践。">
-    <title>Jabbey | SaaS ERP 后端架构笔记</title>
-    <link rel="stylesheet" href="./styles.css">
-    <script src="./scripts/main.js" defer></script>
-  </head>
-  <body>
-    <header class="site-header">
-      <nav class="nav" aria-label="主导航">
-        <a class="brand" href="#top" aria-label="Jabbey 首页">
-          <img class="brand-avatar" src="./assets/avatar.png" alt="Jabbey avatar">
-          <span>Jabbey</span>
-        </a>
-        <div class="nav-links">
-          <a href="#articles">文章</a>
-          <a href="#focus">关注方向</a>
-          <a href="#links">链接</a>
-        </div>
-      </nav>
-    </header>
+---
+layout: default
+title: "后端架构笔记"
+description: "Jabbey 的个人技术博客，记录 SaaS ERP、业务建模和 Java 后端性能排查实践。"
+---
 
-    <main id="top">
-      <section class="hero" aria-labelledby="hero-title">
-        <div class="hero-copy">
-          <p class="eyebrow">Java / SaaS ERP / Performance Troubleshooting</p>
-          <h1 id="hero-title">Jabbey 的后端架构笔记</h1>
-          <p class="hero-text">
-            记录从真实业务问题到系统设计和性能排查的思考。关注 SaaS ERP、库存系统、生产系统、
-            B 端业务建模、状态机、事务一致性、数据库链路和工程架构。
-          </p>
-          <div class="hero-actions" aria-label="快捷入口">
-            <a class="primary-link" href="#articles">阅读文章</a>
-            <a class="secondary-link" href="https://github.com/devhjb" target="_blank" rel="noreferrer">GitHub</a>
-          </div>
-        </div>
-        <div class="profile-panel" aria-label="个人定位">
-          <img class="profile-avatar" src="./assets/avatar.png" alt="Jabbey Nebula logo">
-          <div>
-            <p class="profile-name">Jabbey</p>
-            <p class="profile-role">SaaS ERP 后端 / 库存与生产系统 / 业务建模</p>
-          </div>
-        </div>
-      </section>
+<main id="top" class="home-page">
+  <section class="intro" aria-labelledby="intro-title">
+    <p class="eyebrow">Java / SaaS ERP / Performance Troubleshooting</p>
+    <h1 id="intro-title">Jabbey 的后端架构笔记</h1>
+    <p class="intro-text">
+      记录从真实业务问题到系统设计、从线上现象到证据链排查的思考。关注 SaaS ERP、库存与生产系统、
+      B 端业务建模、事务一致性、SQL 审计、数据库链路和工程稳健性。
+    </p>
+    <div class="intro-actions" aria-label="快捷入口">
+      <a class="primary-link" href="#writing">阅读文章</a>
+      <a class="secondary-link" href="https://github.com/devhjb" target="_blank" rel="noreferrer">GitHub</a>
+    </div>
+  </section>
 
-      <section id="articles" class="section" aria-labelledby="articles-title">
-        <div class="section-heading">
-          <p class="section-kicker">Writing</p>
-          <h2 id="articles-title">文章</h2>
-        </div>
-        <div class="article-list" id="article-list" aria-live="polite"></div>
-        <p class="article-load-state" id="article-load-state">文章加载中...</p>
-      </section>
-
-      <section id="focus" class="section focus-section" aria-labelledby="focus-title">
-        <div class="section-heading">
-          <p class="section-kicker">Focus</p>
-          <h2 id="focus-title">关注方向</h2>
-        </div>
-        <div class="focus-grid">
-          <div class="focus-item">
-            <span class="focus-index">01</span>
-            <h3>SaaS ERP</h3>
-            <p>围绕商品、库存、采购、销售、生产、财务边界做可演进的业务系统设计。</p>
+  <section id="writing" class="section writing-section" aria-labelledby="writing-title">
+    <div class="section-heading compact">
+      <p class="section-kicker">Writing</p>
+      <h2 id="writing-title">文章</h2>
+    </div>
+    <div class="post-list">
+      {% for post in site.posts %}
+        <article class="post-card{% if post.featured %} featured{% endif %}">
+          <div class="post-card-main">
+            <div class="article-meta">
+              <span>{{ post.category }}</span>
+              {% if post.series %}<span>{{ post.series }}</span>{% endif %}
+            </div>
+            <h3><a href="{{ post.url }}">{{ post.title }}</a></h3>
+            <p>{{ post.summary }}</p>
+            <div class="article-footer">
+              <time datetime="{{ post.date | date: '%Y-%m-%d' }}">{{ post.date | date: '%Y-%m-%d' }}</time>
+              <span class="article-links">
+                <a class="article-link" href="{{ post.url }}">本站</a>
+                {% for item in post.links %}<a class="article-link" href="{{ item.url }}" target="_blank" rel="noreferrer">{{ item.label }}</a>{% endfor %}
+              </span>
+            </div>
           </div>
-          <div class="focus-item">
-            <span class="focus-index">02</span>
-            <h3>库存与生产系统</h3>
-            <p>关注库存流水、预占、在制台账、BOM、工单和生产闭环中的账务一致性。</p>
-          </div>
-          <div class="focus-item">
-            <span class="focus-index">03</span>
-            <h3>性能与稳健性</h3>
-            <p>重视状态机、事务边界、幂等、审计、SQL 证据链和后端性能问题的可复用排查方法。</p>
-          </div>
-        </div>
-      </section>
+        </article>
+      {% endfor %}
+    </div>
+  </section>
 
-      <section id="links" class="section links-section" aria-labelledby="links-title">
-        <div class="section-heading">
-          <p class="section-kicker">Links</p>
-          <h2 id="links-title">链接</h2>
-        </div>
-        <div class="link-list">
-          <a href="https://github.com/devhjb" target="_blank" rel="noreferrer">
-            <span>GitHub</span>
-            <strong>github.com/devhjb</strong>
-          </a>
-          <a href="https://juejin.cn/post/7676661059809755172" target="_blank" rel="noreferrer">
-            <span>掘金</span>
-            <strong>最新文章同步</strong>
-          </a>
-          <a href="https://blog.csdn.net/qq_45481524/article/details/163994433?spm=1001.2014.3001.5501" target="_blank" rel="noreferrer">
-            <span>CSDN</span>
-            <strong>最新文章同步</strong>
-          </a>
-        </div>
-      </section>
-    </main>
+  <section id="about" class="section about-section" aria-labelledby="about-title">
+    <div class="section-heading compact">
+      <p class="section-kicker">About</p>
+      <h2 id="about-title">关注方向</h2>
+    </div>
+    <div class="about-grid">
+      <div>
+        <h3>SaaS ERP 业务建模</h3>
+        <p>围绕商品、库存、采购、销售、生产、财务等边界，沉淀可演进的 B 端业务系统设计方法。</p>
+      </div>
+      <div>
+        <h3>库存与生产系统</h3>
+        <p>关注库存流水、预占、在制台账、BOM、工单和生产闭环中的账务一致性。</p>
+      </div>
+      <div>
+        <h3>性能排查与工程稳健性</h3>
+        <p>重视 SQL 审计、日志证据链、事务边界、幂等、异常恢复和可复用排查模板。</p>
+      </div>
+    </div>
+  </section>
 
-    <footer class="site-footer">
-      <p>© 2026 Jabbey. Built for technical writing and system design notes.</p>
-    </footer>
-  </body>
-</html>
+  <section id="links" class="section links-section" aria-labelledby="links-title">
+    <div class="section-heading compact">
+      <p class="section-kicker">Links</p>
+      <h2 id="links-title">链接</h2>
+    </div>
+    <div class="link-list">
+      <a href="https://github.com/devhjb" target="_blank" rel="noreferrer">
+        <span>GitHub</span>
+        <strong>github.com/devhjb</strong>
+      </a>
+      <a href="https://juejin.cn/post/7676661059809755172" target="_blank" rel="noreferrer">
+        <span>掘金</span>
+        <strong>最新文章同步</strong>
+      </a>
+      <a href="https://blog.csdn.net/qq_45481524/article/details/163994433?spm=1001.2014.3001.5501" target="_blank" rel="noreferrer">
+        <span>CSDN</span>
+        <strong>最新文章同步</strong>
+      </a>
+    </div>
+  </section>
+</main>

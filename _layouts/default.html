@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="{{ site.lang | default: 'zh-CN' }}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="{{ page.description | default: site.description }}">
+    <title>{% if page.title %}{{ page.title }} | {% endif %}{{ site.title }}</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <nav class="nav" aria-label="主导航">
+        <a class="brand" href="/" aria-label="Jabbey 首页">
+          <img class="brand-avatar" src="/assets/avatar.png" alt="Jabbey avatar">
+          <span>Jabbey</span>
+        </a>
+        <div class="nav-links">
+          <a href="/#writing">文章</a>
+          <a href="/#about">关于</a>
+          <a href="/#links">链接</a>
+        </div>
+      </nav>
+    </header>
+
+    {{ content }}
+
+    <footer class="site-footer">
+      <p>© 2026 Jabbey. Notes on backend systems, business modeling, and production debugging.</p>
+    </footer>
+  </body>
+</html>

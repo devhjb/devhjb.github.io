@@ -1,0 +1,10 @@
+title: Jabbey
+description: "Java 后端开发者，记录 SaaS ERP、库存与生产系统、业务建模和后端性能排查。"
+url: "https://devhjb.github.io"
+baseurl: ""
+lang: zh-CN
+timezone: Asia/Shanghai
+markdown: kramdown
+permalink: /:year/:month/:day/:title/
+
+plugins: []
