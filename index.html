@@ -1,17 +1,17 @@
 ---
 layout: default
 title: "工程笔记"
-description: "Jabbey 的个人技术博客，记录 Java 后端、SaaS ERP、业务系统建模、性能排查、AI 工程工作流和长期工程复盘。"
+description: "Jabbey 的个人技术博客，记录业务系统工程、业财一体化、财会数字化、Java 后端、性能排查、AI 工程工作流和长期工程复盘。"
 ---
 
 <main id="top" class="home-page">
   <section class="identity-hero" aria-labelledby="intro-title">
     <div class="identity-copy">
-      <p class="eyebrow">Personal Engineering Journal</p>
-      <h1 id="intro-title">Jabbey 的工程笔记</h1>
+      <p class="eyebrow">Business Systems / Finance Tech / Backend</p>
+      <h1 id="intro-title">Jabbey 的业务系统工程笔记</h1>
       <p class="intro-text">
-        记录 Java 后端、SaaS ERP、业务系统建模、性能排查、AI 工程工作流，以及一个开发者长期积累问题判断力的过程。
-        文章尽量从真实问题出发，保留证据、取舍和复盘，不把框架名词当成结论。
+        记录复杂业务系统、业财一体化、财会数字化、Java 后端、性能排查与 AI 工程工作流。
+        当前实践主要来自 SaaS ERP、进销存、库存生产与财会链路，长期关注如何把业务规则、账务逻辑和工程系统做得更清楚、更可靠。
       </p>
       <div class="intro-actions" aria-label="快捷入口">
         <a class="primary-link" href="#writing">阅读最新文章</a>
@@ -28,22 +28,22 @@ description: "Jabbey 的个人技术博客，记录 Java 后端、SaaS ERP、业
         <li>
           <span>01</span>
           <a href="#coordinate">
-            <strong>业务系统建模</strong>
-            <em>对象、状态、账本、边界</em>
+            <strong>业务系统工程</strong>
+            <em>对象、流程、状态、边界</em>
           </a>
         </li>
         <li>
           <span>02</span>
           <a href="#writing">
-            <strong>性能与排障</strong>
-            <em>日志、SQL、JVM、链路证据</em>
+            <strong>业财与账务链路</strong>
+            <em>库存、生产、财会、业财一致</em>
           </a>
         </li>
         <li>
           <span>03</span>
           <a href="#about">
-            <strong>AI 工程工作流</strong>
-            <em>规则、上下文、验证、回退</em>
+            <strong>工程排查与 AI</strong>
+            <em>证据链、验证、规则、回退</em>
           </a>
         </li>
       </ol>
@@ -59,18 +59,18 @@ description: "Jabbey 的个人技术博客，记录 Java 后端、SaaS ERP、业
     <div class="coordinate-grid">
       <article>
         <span class="coordinate-index">01</span>
-        <h3>业务系统建模</h3>
-        <p>把商品、库存、采购、销售、生产、财会这些业务对象拆成边界、状态、不变量和账本。</p>
+        <h3>业务系统工程</h3>
+        <p>把商品、库存、采购、销售、生产、财会这些业务对象拆成边界、流程、状态、不变量和账本。</p>
       </article>
       <article>
         <span class="coordinate-index">02</span>
-        <h3>性能与排障证据链</h3>
-        <p>从告警、日志、SQL 审计、JVM 指标和 A/B 验证里还原事实，不把框架 API 名字当结论。</p>
+        <h3>业财一体化与财会数字化</h3>
+        <p>关注业务单据、库存流转、成本、应收应付、Open Item 和会计过账之间的关系。</p>
       </article>
       <article>
         <span class="coordinate-index">03</span>
-        <h3>AI 工程工作流</h3>
-        <p>把 AI Coding 从提示词技巧推进到上下文、规则、评估、工具、记忆和回退组成的工作系统。</p>
+        <h3>排查证据链与 AI 工作流</h3>
+        <p>从日志、SQL 审计、JVM 指标和 A/B 验证里还原事实，并把 AI Coding 纳入可验证的工程流程。</p>
       </article>
     </div>
   </section>
@@ -81,7 +81,7 @@ description: "Jabbey 的个人技术博客，记录 Java 后端、SaaS ERP、业
         <p class="section-kicker">Writing</p>
         <h2 id="writing-title">技术日志</h2>
       </div>
-      <p>优先记录真实问题、设计取舍和可复用排查模板。</p>
+      <p>优先记录真实问题、业务链路、设计取舍和可复用排查模板。</p>
     </div>
     <div class="post-list">
       {% for post in site.posts %}
@@ -119,16 +119,16 @@ description: "Jabbey 的个人技术博客，记录 Java 后端、SaaS ERP、业
     <div class="profile-summary" aria-label="履历摘要">
       <p class="profile-line">
         <span>一句话定位</span>
-        Java / Spring Boot 后端开发者，长期关注 SaaS ERP、复杂业务建模、系统稳定性和 AI Coding 工作流。
+        Java / Spring Boot 后端开发者，当前深耕 SaaS ERP，长期关注业务系统工程、业财一体化、财会数字化和 AI Coding 工作流。
       </p>
       <dl class="resume-strip">
         <div>
-          <dt>业务经验</dt>
-          <dd>进销存、餐饮、库存、生产、财会链路</dd>
+          <dt>当前实践</dt>
+          <dd>SaaS ERP、进销存、餐饮、库存、生产、财会链路</dd>
         </div>
         <div>
-          <dt>工程关注</dt>
-          <dd>领域边界、数据一致性、性能排查、可维护性</dd>
+          <dt>长期方向</dt>
+          <dd>业财一体化、财会数字化、业务系统建模</dd>
         </div>
         <div>
           <dt>公开原则</dt>
@@ -142,7 +142,7 @@ description: "Jabbey 的个人技术博客，记录 Java 后端、SaaS ERP、业
         <p>长期处理 merchant、passport、resource、boss 等中心协作下的业务边界、权限、i18n 和跨域编排。</p>
       </div>
       <div>
-        <h3>库存、生产与财会链路</h3>
+        <h3>业财链路与财会数字化</h3>
         <p>关注库存流水、预占、Open Item、会计过账、业务操作日志和轻制造生产闭环。</p>
       </div>
       <div>
