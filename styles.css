@@ -292,12 +292,108 @@ a { color: inherit; text-decoration: none; }
 .post-content td { padding: 12px; border: 1px solid var(--line); text-align: left; vertical-align: top; }
 .post-content th { background: var(--green-soft); color: var(--accent-strong); }
 
+/* Legacy homepage fallback.
+   Older cached HTML used these classes. Keep them constrained so browser
+   back/forward cache cannot render the old profile image at its natural size. */
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.7fr);
+  gap: 42px;
+  align-items: center;
+  padding: 92px 0 68px;
+  border-bottom: 1px solid var(--line);
+}
+
+.hero-copy {
+  min-width: 0;
+}
+
+.hero h1 {
+  max-width: 760px;
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(42px, 6vw, 72px);
+  line-height: 1.04;
+  letter-spacing: 0;
+}
+
+.hero-text {
+  max-width: 760px;
+  margin: 24px 0 0;
+  color: #4e5b56;
+  font-size: 18px;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 34px;
+}
+
+.profile-panel {
+  display: grid;
+  gap: 16px;
+  align-content: end;
+  width: 100%;
+  max-width: 360px;
+  justify-self: end;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+  box-shadow: var(--shadow);
+}
+
+.profile-avatar {
+  display: block;
+  width: 100%;
+  max-width: 316px;
+  aspect-ratio: 1;
+  height: auto;
+  max-height: 316px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.profile-name {
+  margin: 0;
+  color: var(--ink);
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.profile-role {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.focus-grid,
+.article-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.focus-item,
+.article-card {
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+}
+
 @media (max-width: 880px) {
   .identity-hero { grid-template-columns: 1fr; padding-top: 64px; }
+  .hero { grid-template-columns: 1fr; padding-top: 64px; }
+  .profile-panel { max-width: none; justify-self: stretch; }
   .signal-panel { min-height: auto; }
   .coordinate-grid,
   .about-grid,
-  .link-list { grid-template-columns: 1fr; }
+  .link-list,
+  .focus-grid,
+  .article-list { grid-template-columns: 1fr; }
   .section-heading.split { align-items: flex-start; flex-direction: column; }
 }
 
