@@ -6,7 +6,7 @@ category: "Java 性能"
 series: "性能排查 01"
 summary: "一次由数据库长事务告警引出的 MyBatis-Plus saveBatch 排查复盘，拆解框架层 batch、JDBC batch 和数据库侧 multi-values INSERT 的差异。"
 cover: "/assets/posts/mybatis-plus-savebatch/cover.png"
-featured: true
+featured: false
 links:
   - label: "掘金"
     url: "https://juejin.cn/post/7676661059809755172"
