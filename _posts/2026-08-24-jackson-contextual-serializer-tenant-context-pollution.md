@@ -6,7 +6,7 @@ category: "Java 排障"
 series: "性能排查 02"
 summary: "一次 SaaS 多租户场景下 Jackson ContextualSerializer 生命周期错配排查：请求级租户精度被复制进长期缓存的属性 serializer，导致后续租户复用错误配置。"
 cover: "/assets/posts/jackson-context-pollution/cover.png"
-featured: true
+featured: false
 links:
   - label: "掘金"
     url: "https://juejin.cn/post/7677127513983303706"
