@@ -6,7 +6,7 @@ category: "业务系统工程"
 series: "业务建模 01"
 summary: "一次业务操作日志体系设计与落地复盘：从字段审计的局限切入，拆解快照 Diff、afterCommit 投递、异步幂等账本、查询时渲染和业务语义建模。"
 cover: "/assets/posts/business-operation-log/cover.png"
-featured: true
+featured: false
 links:
   - label: "掘金"
     url: "https://juejin.cn/post/7677515319150641202"

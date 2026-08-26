@@ -5,7 +5,7 @@ date: 2026-08-25 10:00:00 +0800
 category: "架构实践"
 series: "轻制造 MRP Lite 架构复盘"
 summary: "从新兴市场中小工厂的真实约束出发，复盘一套轻制造 MRP Lite 系统的业务建模、库存闭环、事务一致性和后端架构设计。"
-featured: true
+featured: false
 links:
   - label: "掘金"
     url: "https://juejin.cn/post/7677878351721332746"
