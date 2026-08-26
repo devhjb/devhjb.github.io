@@ -6,7 +6,7 @@ category: "AI 工程"
 series: "AI Coding 01"
 summary: "一次 AI Coding 进入 SaaS ERP 研发后的自动化测试路线梳理：不要先搭测试平台，而是先把 P0 接口级黄金流程、业务不变量、测试数据策略和 CI 门禁跑起来。"
 cover: "/assets/posts/ai-era-saas-erp-testing/cover.png"
-featured: true
+featured: false
 links:
   - label: "掘金"
     url: "https://juejin.cn/post/7677923999771066418"
