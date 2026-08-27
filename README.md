@@ -23,6 +23,7 @@ Java 后端开发，关注 SaaS ERP、库存系统、生产系统、B 端业务�
 
 ## 文章系列
 
+- 热敏打印不是 exactly-once：餐饮 POS 打印任务的 Claim、兜底与结果未知治理
 - 列表导出不够用：SaaS ERP 单据详情导出的 Provider、模板与文档型 Excel 设计
 - 别被 saveBatch 骗了：一次 MyBatis-Plus 批量插入性能排查
 - 轻制造 SaaS 的生产闭环建模：BOM、工单、领料、报工、质检与入库

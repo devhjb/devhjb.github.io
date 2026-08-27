@@ -6,7 +6,7 @@ category: "业务系统工程"
 series: "导出体系 01"
 summary: "一次 SaaS ERP 单据详情导出设计复盘：从列表导出的边界切入，拆解列表型、明细布局型和单据文档型导出的差异，以及 Provider、模板字段白名单、标签优先级、Excel Renderer、同步护栏和 fail-fast 策略。"
 cover: "/assets/posts/document-detail-export/cover.png"
-featured: true
+featured: false
 links:
   - label: "掘金"
     url: "https://juejin.cn/post/7678237761537179699"
